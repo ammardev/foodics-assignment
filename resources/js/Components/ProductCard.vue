@@ -3,8 +3,8 @@
         <img :src="product.image" class="w-full" height="200" width="300">
         <div class="flex flex-col p-4">
             <h2 class="text-lg pb-2 text-slate-800 font-semibold">{{product.name}}</h2>
-            <button class="bg-violet-500 rounded-lg py-3 text-white font-bold">
-                Add to cart
+            <button class="bg-violet-500 rounded-lg py-3 text-white font-bold" @click="openProductDetails">
+                Details
             </button>
         </div>
     </div>
@@ -12,6 +12,13 @@
 
 <script>
     export default {
-        props: ['product']
+        props: ['product'],
+
+        methods: { 
+            openProductDetails() {
+                axios.get(`/api/products/${this.product.id}`)
+                    .then(response => this.$emit('openDetails', response.data))
+            }
+        }
     }
 </script>
