@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('products_ingredients', function (Blueprint $table) {
+        Schema::create('ingredient_product', function (Blueprint $table) {
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('ingredient_id')->constrained()->cascadeOnDelete();
             $table->primary(['product_id', 'ingredient_id']);
@@ -38,7 +38,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products_ingredients');
+        Schema::dropIfExists('ingredient_product');
         Schema::dropIfExists('ingredients');
     }
 };

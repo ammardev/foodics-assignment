@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('orders_products', function (Blueprint $table) {
+        Schema::create('order_product', function (Blueprint $table) {
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->primary(['order_id', 'product_id']);
@@ -35,7 +35,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders_products');
+        Schema::dropIfExists('order_product');
         Schema::dropIfExists('orders');
     }
 };
