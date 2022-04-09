@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Ingredient extends Model
 {
     use HasFactory;
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'products_ingredients')
+            ->withPivot('needed_amount');
+    }
 }
