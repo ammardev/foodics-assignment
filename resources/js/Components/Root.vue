@@ -51,5 +51,9 @@
                 products: []
             }
         },
+
+        created() {
+            axios.get('/api/products').then(response => this.products = response.data.data)
+        }
     }
 </script>
