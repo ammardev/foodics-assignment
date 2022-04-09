@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
+use App\Models\IngredientProduct;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -27,9 +28,49 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
-        // Persists the Order in the database
-        // Updates the stock of the ingredients
-        // Returns a response with the status of the request
+        $products = collect($request->validated()['products'])
+            ->mapWithKeys(fn($product) => [$product['id'] => ['quantity' => $product['quantity']]]);
+
+        $ingredientProductPivotList = IngredientProduct::whereIn('product_id', $products->keys())
+            ->with('ingredient:id,current_amount,inserted_amount,amount_alert_sent')
+            ->get()
+            ->map(function($item) use ($products) {
+                $item->quantity = $products[$item->product_id]['quantity'];
+                return $item;
+            });
+            
+        $neededIngredients = [];
+        
+        foreach($ingredientProductPivotList as $listItem) {
+            if (!isset($neededIngredients[$listItem->ingredient_id])) {
+                $neededIngredients[$listItem->ingredient_id] = [
+                    'needed_amount' => 0,
+                    ...$listItem->ingredient->toArray(),
+                    'products' => []
+                ];
+            }
+            $neededIngredients[$listItem->ingredient_id]['needed_amount'] += $listItem->needed_amount * $listItem->quantity;
+            $neededIngredients[$listItem->ingredient_id]['products'][] = $listItem->product_id;
+        }
+
+        foreach ($neededIngredients as $ingredientId => $ingredient) {
+
+            $remainingAmount = $ingredient['current_amount'] - $ingredient['needed_amount'];
+
+            if ($remainingAmount < 0) {
+                // TODO: we can here send an alert to the merchant
+                return response()->json(['error' => 'insufficient_amount for ingredient ' . $ingredientId]);
+            }
+            
+            if (!$ingredient['amount_alert_sent'] && $remainingAmount <= $ingredient['inserted_amount'] / 2) {
+                dump('send alert');
+                // TODO: send the alert
+            }
+        }
+
+        Order::create()->products()->attach($products->toArray());
+
+        return response()->json(['message' => 'Order created successfully'], 201);
     }
 
     /**
