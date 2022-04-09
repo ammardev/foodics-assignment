@@ -26,15 +26,7 @@
         </aside>
         <div class="w-3/4">
             <div class="grid grid-cols-4 gap-5">
-                <div v-for="i in 8" :key="i" class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <img src="https://images.deliveryhero.io/image/talabat/MenuItems/blob_637430330387395346" class="w-full" height="200" width="300">
-                    <div class="flex flex-col p-4">
-                        <h2 class="text-lg pb-2 text-slate-800 font-semibold">Product Name</h2>
-                        <button class="bg-violet-500 rounded-lg py-3 text-white font-bold">
-                            Add to cart
-                        </button>
-                    </div>
-                </div>
+                <product-card v-for="product in products" :key="product.id" :product="product"/>
             </div>
             <div class="mt-3">
                 paginator
@@ -49,4 +41,15 @@
 </template>
 
 <script>
+    import ProductCard from './ProductCard.vue'
+
+    export default {
+        components: { ProductCard },
+
+        data() {
+            return {
+                products: []
+            }
+        },
+    }
 </script>
