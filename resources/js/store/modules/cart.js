@@ -1,6 +1,6 @@
 const state = () => ({
     items: [],
-    checkoutStatus: null
+    isLoading: false
 })
 
 const getters = {
@@ -27,17 +27,19 @@ const actions = {
     removeProductFromCart({ state, commit }, product) {
         commit('popProductFromCart', {product})
     },
-    checkout({ state, commit }) {
+    checkout({ state, commit, dispatch }) {
         if (state.items.length < 1) {
             return;
         }
-        commit('setCheckoutStatus', 'loading');
+        commit('setLoading', true);
         const products = state.items.map(item => ({id: item.id, quantity: item.quantity}));
         axios.post('/api/orders', {products}).then(response => {
-            commit('setCheckoutStatus', 'success');
+            dispatch('messages/createMessage', {content: 'Your order has been created', type: 'success'}, {root:true})
             commit('emptyCart');
+            commit('setLoading', false);
         }).catch(response => {
-            commit('setCheckoutStatus', 'error');
+            dispatch('messages/createMessage', {content: 'An error has occurred. Please try again later.', type: 'error'}, {root:true})
+            commit('setLoading', false);
         })
     }
 }
@@ -57,8 +59,8 @@ const mutations = {
         state.items.splice(cartItemIndex, 1);
     },
     
-    setCheckoutStatus(state, status) {
-        state.checkoutStatus = status;
+    setLoading(state, status) {
+        state.isLoading = status;
     },
 
     emptyCart(state) {
