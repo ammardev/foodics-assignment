@@ -19,6 +19,9 @@ const actions = {
         } else {
             commit('incrementItemQuantity', {product})
         }
+    },
+    removeProductFromCart({ state, commit }, product) {
+        commit('popProductFromCart', {product})
     }
 }
 
@@ -30,6 +33,11 @@ const mutations = {
     incrementItemQuantity(state, { product }) {
         const cartItem = state.items.find(item => item.id === product.id);
         cartItem.quantity += product.quantity;
+    },
+
+    popProductFromCart(state, { product }) {
+        const cartItemIndex = state.items.findIndex(item => item.id === product.id);
+        state.items.splice(cartItemIndex, 1);
     },
 }
 
