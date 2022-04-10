@@ -49,7 +49,8 @@
         DialogOverlay,
         DialogTitle,
         DialogDescription,
-    } from '@headlessui/vue'
+    } from '@headlessui/vue';
+    import { mapActions } from 'vuex';
 
     export default {
         components: {
@@ -68,11 +69,14 @@
         },
 
         methods: { 
+            ...mapActions('cart', [
+                'addProductToCart',
+            ]),
             close() {
                 this.$emit('close');
             },
             addToCart() {
-                this.$emit('addToCart', {
+                this.addProductToCart({
                     ...this.product,
                     quantity: this.quantity,
                 });

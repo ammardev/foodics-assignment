@@ -15,9 +15,9 @@ const actions = {
         }
         const cartItem = state.items.find(item => item.id === product.id)
         if (!cartItem) {
-            commit('pushProductToCart', product)
+            commit('pushProductToCart', {product})
         } else {
-            commit('incrementItemQuantity', product)
+            commit('incrementItemQuantity', {product})
         }
     }
 }
