@@ -25,7 +25,7 @@
         </div>
     </main>
     
-    <product-details-dialog :product="activeProductInDialog" @close="activeProductInDialog = null" @addToCart="addToCart"/>
+    <product-details-dialog :product="activeProductInDialog" @close="activeProductInDialog = null"/>
     
     <footer class="py-5 text-center text-slate-500">
         Developed By <a href="mailto:me@ammar.dev" class="text-violet-500 font-semibold">Ammar Al-Khawaldeh</a>
@@ -43,7 +43,6 @@
         data() {
             return {
                 products: [],
-                cartProducts: [],
                 activeProductInDialog: null,
             }
         },
@@ -51,11 +50,5 @@
         created() {
             axios.get('/api/products').then(response => this.products = response.data.data)
         },
-
-        methods: { 
-            addToCart(product) {
-                this.cartProducts.push(product)
-            }
-        }
     }
 </script>
