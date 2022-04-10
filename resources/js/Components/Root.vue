@@ -26,14 +26,15 @@
         </aside>
         <div class="w-3/4">
             <div class="grid grid-cols-4 gap-5">
-                <product-card v-for="product in products" :key="product.id" :product="product"/>
+                <product-card v-for="product in products" :key="product.id" :product="product" @openDetails="activeProductInDialog = $event"/>
             </div>
             <div class="mt-3">
                 paginator
             </div>
         </div>
-        
     </main>
+    
+    <product-details-dialog :product="activeProductInDialog" @close="activeProductInDialog = null"/>
     
     <footer class="py-5 text-center text-slate-500">
         Developed By <a href="mailto:me@ammar.dev" class="text-violet-500 font-semibold">Ammar Al-Khawaldeh</a>
@@ -42,13 +43,15 @@
 
 <script>
     import ProductCard from './Products/ProductCard.vue'
+    import ProductDetailsDialog from './Products/ProductDetailsDialog.vue'
 
     export default {
-        components: { ProductCard },
+        components: { ProductCard, ProductDetailsDialog },
 
         data() {
             return {
-                products: []
+                products: [],
+                activeProductInDialog: null,
             }
         },
 
