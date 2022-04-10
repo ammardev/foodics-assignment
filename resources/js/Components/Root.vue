@@ -9,16 +9,7 @@
                 Your Order Items
             </div>
             <div class="flex flex-col gap-4 flex-grow border-2 border-dashed border-t-0 border-slate-400 rounded-b-lg p-3">
-                <div v-for="product in cartProducts" :key="product.i" class="flex items-center bg-white rounded-lg shadow-md overflow-hidden">
-                    <img :src="product.image" class="w-1/3" height="100" width="200">
-                    <div class="w-2/3 px-4 py-1">
-                        {{product.name}}
-                        <div class="flex gap-2 pt-1">
-                            <input type="number" class="text-slate-600 border border-slate-300 px-2 py-1 rounded-lg w-3/4" :value="product.quantity">
-                            <button class="bg-red-400 rounded-lg px-2 text-xs tracking-wide font-bold text-white uppercase">Remove</button>
-                        </div>
-                    </div>
-                </div>
+                <cart-product-card v-for="product in cartProducts" :key="product.i" :product="product"/>
             </div>
             <button class="bg-violet-500 rounded-lg py-3 text-white font-bold mt-3">
                 Checkout
@@ -43,10 +34,11 @@
 
 <script>
     import ProductCard from './Products/ProductCard.vue'
+    import CartProductCard from './Products/CartProductCard.vue'
     import ProductDetailsDialog from './Products/ProductDetailsDialog.vue'
 
     export default {
-        components: { ProductCard, ProductDetailsDialog },
+        components: { ProductCard, CartProductCard, ProductDetailsDialog },
 
         data() {
             return {
