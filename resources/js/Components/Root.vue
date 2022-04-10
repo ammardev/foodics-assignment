@@ -20,15 +20,18 @@
     <footer class="py-5 text-center text-slate-500">
         Developed By <a href="mailto:me@ammar.dev" class="text-violet-500 font-semibold">Ammar Al-Khawaldeh</a>
     </footer>
+    
+    <system-message/>
 </template>
 
 <script>
     import ProductCard from './Products/ProductCard.vue'
     import Cart from './Cart.vue'
     import ProductDetailsDialog from './Products/ProductDetailsDialog.vue'
+    import SystemMessage from './SystemMessage.vue'
 
     export default {
-        components: { ProductCard, Cart, ProductDetailsDialog },
+        components: { ProductCard, Cart, ProductDetailsDialog, SystemMessage},
 
         data() {
             return {
