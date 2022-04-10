@@ -28,12 +28,12 @@
                 <div class="flex justify-between items-center mt-4">
                     <label class="text-slate-500">
                         Quantity: 
-                        <input type="number" class="text-slate-600 border border-slate-300 px-2 py-1 rounded-lg w-1/2" value="1">
+                        <input type="number" class="text-slate-600 border border-slate-300 px-2 py-1 rounded-lg w-1/2" v-model="quantity">
                     </label>
 
                     <button
                         class="px-4 py-2 text-sm font-medium text-white bg-violet-500 rounded-md hover:bg-violet-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-200"
-                        @click="closeModal"
+                        @click="addToCart"
                     >
                         Add to cart
                     </button>
@@ -60,10 +60,24 @@
         },
         
         props: ['product'],
+        
+        data() {
+            return {
+                quantity: 1,
+            }
+        },
 
         methods: { 
             close() {
                 this.$emit('close');
+            },
+            addToCart() {
+                this.$emit('addToCart', {
+                    ...this.product,
+                    quantity: this.quantity,
+                });
+                this.quantity = 1;
+                this.close();
             }
         }
     }

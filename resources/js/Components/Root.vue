@@ -9,12 +9,12 @@
                 Your Order Items
             </div>
             <div class="flex flex-col gap-4 flex-grow border-2 border-dashed border-t-0 border-slate-400 rounded-b-lg p-3">
-                <div v-for="i in 3" :key="i" class="flex items-center bg-white rounded-lg shadow-md overflow-hidden">
-                    <img src="https://images.deliveryhero.io/image/talabat/MenuItems/blob_637430330387395346" class="w-1/3" height="100" width="200">
-                    <div class="w-2/3 px-4 py-2">
-                        Product Name
-                        <div class="flex gap-2 pt-2">
-                            <input type="number" class="text-slate-600 border border-slate-300 px-2 py-1 rounded-lg w-3/4" value="1">
+                <div v-for="product in cartProducts" :key="product.i" class="flex items-center bg-white rounded-lg shadow-md overflow-hidden">
+                    <img :src="product.image" class="w-1/3" height="100" width="200">
+                    <div class="w-2/3 px-4 py-1">
+                        {{product.name}}
+                        <div class="flex gap-2 pt-1">
+                            <input type="number" class="text-slate-600 border border-slate-300 px-2 py-1 rounded-lg w-3/4" :value="product.quantity">
                             <button class="bg-red-400 rounded-lg px-2 text-xs tracking-wide font-bold text-white uppercase">Remove</button>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
         </div>
     </main>
     
-    <product-details-dialog :product="activeProductInDialog" @close="activeProductInDialog = null"/>
+    <product-details-dialog :product="activeProductInDialog" @close="activeProductInDialog = null" @addToCart="addToCart"/>
     
     <footer class="py-5 text-center text-slate-500">
         Developed By <a href="mailto:me@ammar.dev" class="text-violet-500 font-semibold">Ammar Al-Khawaldeh</a>
@@ -51,12 +51,19 @@
         data() {
             return {
                 products: [],
+                cartProducts: [],
                 activeProductInDialog: null,
             }
         },
 
         created() {
             axios.get('/api/products').then(response => this.products = response.data.data)
+        },
+
+        methods: { 
+            addToCart(product) {
+                this.cartProducts.push(product)
+            }
         }
     }
 </script>
