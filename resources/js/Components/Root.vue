@@ -4,17 +4,7 @@
     </header>
     
     <main class="flex flex-grow gap-6 px-10 pt-14">
-        <aside class="flex flex-col w-1/4">
-            <div class="w-full bg-violet-500 text-white text-lg font-bold tracking-wide px-3 py-2 rounded-lg">
-                Your Order Items
-            </div>
-            <div class="flex flex-col gap-4 flex-grow border-2 border-dashed border-t-0 border-slate-400 rounded-b-lg p-3">
-                <cart-product-card v-for="product in cartProducts" :key="product.i" :product="product"/>
-            </div>
-            <button class="bg-violet-500 rounded-lg py-3 text-white font-bold mt-3">
-                Checkout
-            </button>
-        </aside>
+        <cart/>
         <div class="w-3/4">
             <div class="grid grid-cols-4 gap-5">
                 <product-card v-for="product in products" :key="product.id" :product="product" @openDetails="activeProductInDialog = $event"/>
@@ -34,11 +24,11 @@
 
 <script>
     import ProductCard from './Products/ProductCard.vue'
-    import CartProductCard from './Products/CartProductCard.vue'
+    import Cart from './Cart.vue'
     import ProductDetailsDialog from './Products/ProductDetailsDialog.vue'
 
     export default {
-        components: { ProductCard, CartProductCard, ProductDetailsDialog },
+        components: { ProductCard, Cart, ProductDetailsDialog },
 
         data() {
             return {
