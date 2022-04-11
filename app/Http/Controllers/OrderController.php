@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
+use App\Models\Ingredient;
 use App\Models\IngredientProduct;
 use App\Models\Product;
+use App\Notifications\IngredientsNeedToBeReFilled;
 use Foodics\Exceptions\AmountInStockIsNotEnough;
 use Foodics\Exceptions\IncorrectOrderTotal;
 use Foodics\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class OrderController extends Controller
 {
@@ -58,9 +61,13 @@ class OrderController extends Controller
             return response()->json(['error' => 'Amount in stock is not enough'], 400);
         }
 
-        foreach ($order->stockChecker->getIngredientsNeedToReFill() as $ingredient) {
-            // TODO: queue notification
+        foreach ($ingredients = $order->stockChecker->getIngredientsNeedToReFill() as $ingredient) {
+            Notification::route('mail', 'owner@example.com')
+                ->notify(new IngredientsNeedToBeReFilled($ingredient));
         }
+        Ingredient::whereIn('id', array_column($ingredients, 'id'))->update([
+            'amount_alert_sent' => true
+        ]);
 
         // TODO: Add all in a transaction
         
