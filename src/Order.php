@@ -25,7 +25,7 @@ class Order
         $product['quantity'] = $quantity;
         $this->products[] = $product;
         $this->stockChecker->addIngredients($product['ingredients'], $quantity);
-        // $this->total += $product['price'] * $quantity;
+        $this->actualTotal += $product['price'] * $quantity;
     }
 
     public function checkout()
@@ -43,7 +43,7 @@ class Order
         foreach ($this->products as $product) {
             $attachedProducts[$product['id']] = [
                 'quantity' => $product['quantity'],
-                // 'price' => $product['price']
+                'order_price' => $product['price']
             ];
         }
 
