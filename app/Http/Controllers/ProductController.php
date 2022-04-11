@@ -18,6 +18,7 @@ class ProductController extends Controller
             'id',
             'name',
             'image',
+            'price',
         ])->paginate();
     }
 
