@@ -6,6 +6,10 @@
         <div class="flex flex-col gap-4 flex-grow border-2 border-dashed border-t-0 border-slate-400 rounded-b-lg p-3">
             <cart-product-card v-for="product in cartProducts" :key="product.i" :product="product"/>
         </div>
+        <div class="flex justify-between bg-violet-500 mt-3 text-white px-3 py-2 rounded-lg font-bold">
+            <span>Total</span>
+            <span>{{getTotal/100}}$</span>
+        </div>
         <button class="bg-violet-500 rounded-lg py-3 text-white font-bold mt-3" @click="checkout">
             Checkout
         </button>
@@ -27,7 +31,8 @@
 
         computed: {
             ...mapGetters('cart', [
-                'cartProducts'
+                'cartProducts',
+                'getTotal'
             ])
         }
     }

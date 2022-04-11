@@ -1,5 +1,6 @@
 const state = () => ({
     items: [],
+    totalPrice: 0,
     isLoading: false
 })
 
@@ -9,6 +10,9 @@ const getters = {
     },
     checkoutStatus(state) {
         return state.checkoutStatus;
+    },
+    getTotal(state) {
+        return state.totalPrice
     }
 }
 
@@ -23,6 +27,8 @@ const actions = {
         } else {
             commit('incrementItemQuantity', {product})
         }
+        
+        commit('updateTotal')
     },
     removeProductFromCart({ state, commit }, product) {
         commit('popProductFromCart', {product})
@@ -65,6 +71,10 @@ const mutations = {
 
     emptyCart(state) {
         state.items = [];
+    },
+
+    updateTotal(state) {
+        state.totalPrice = state.items.reduce((total, item) => total + item.price * item.quantity, 0);
     }
 }
 
