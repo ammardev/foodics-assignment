@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
 use App\Models\IngredientProduct;
-use App\Models\Order;
 use App\Models\Product;
+use Foodics\Exceptions\AmountInStockIsNotEnough;
+use Foodics\Exceptions\IncorrectOrderTotal;
+use Foodics\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -28,48 +30,42 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
-        $products = collect($request->validated()['products'])
-            ->mapWithKeys(fn($product) => [$product['id'] => ['quantity' => $product['quantity']]]);
-
-        $ingredientProductPivotList = IngredientProduct::whereIn('product_id', $products->keys())
-            ->with('ingredient:id,current_amount,inserted_amount,amount_alert_sent')
-            ->get()
-            ->map(function($item) use ($products) {
-                $item->quantity = $products[$item->product_id]['quantity'];
-                return $item;
-            });
-            
-        $neededIngredients = [];
+        $orderedProducts = collect($request->validated()['products'])
+            ->mapWithKeys(fn($product) => [$product['id'] => $product['quantity']]);
         
-        foreach($ingredientProductPivotList as $listItem) {
-            if (!isset($neededIngredients[$listItem->ingredient_id])) {
-                $neededIngredients[$listItem->ingredient_id] = [
-                    'needed_amount' => 0,
-                    ...$listItem->ingredient->toArray(),
-                    'products' => []
-                ];
+        // TODO: read total price from frontend
+        // TODO: separate this query to a repository
+        $products = Product::select([
+            'id',
+            // 'price'
+        ])->whereIn('id', $orderedProducts->keys())
+        ->with('ingredients')
+        ->get()
+        ->toArray();
+        
+        try {
+            $order = new Order(0);
+            foreach($products as $product) {
+                $order->addProductToOrder(
+                    $product,
+                    $orderedProducts[$product['id']]
+                );
             }
-            $neededIngredients[$listItem->ingredient_id]['needed_amount'] += $listItem->needed_amount * $listItem->quantity;
-            $neededIngredients[$listItem->ingredient_id]['products'][] = $listItem->product_id;
+            $order->checkout();
+        } catch (IncorrectOrderTotal $e) {
+            return response()->json(['error' => 'Incorrect order price'], 400);
+        } catch (AmountInStockIsNotEnough $q) {
+            return response()->json(['error' => 'Amount in stock is not enough'], 400);
         }
 
-        foreach ($neededIngredients as $ingredientId => $ingredient) {
-
-            $remainingAmount = $ingredient['current_amount'] - $ingredient['needed_amount'];
-
-            if ($remainingAmount < 0) {
-                // TODO: we can here send an alert to the merchant
-                return response()->json(['error' => 'insufficient_amount for ingredient ' . $ingredientId]);
-            }
-            
-            if (!$ingredient['amount_alert_sent'] && $remainingAmount <= $ingredient['inserted_amount'] / 2) {
-                dump('send alert');
-                // TODO: send the alert
-            }
+        foreach ($order->stockChecker->getIngredientsNeedToReFill() as $ingredient) {
+            // TODO: queue notification
         }
 
-        Order::create()->products()->attach($products->toArray());
-
+        // TODO: Persist order
+        // TODO: Update stock
+        // TODO: Add all in a transaction
+        
         return response()->json(['message' => 'Order created successfully'], 201);
     }
 
