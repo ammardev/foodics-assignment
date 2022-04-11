@@ -3,6 +3,7 @@
 namespace Foodics;
 
 use Foodics\Exceptions\IncorrectOrderTotal;
+use App\Models\Order as EloquentOrder;
 
 class Order
 {
@@ -21,6 +22,7 @@ class Order
 
     public function addProductToOrder($product, int $quantity)
     {
+        $product['quantity'] = $quantity;
         $this->products[] = $product;
         $this->stockChecker->addIngredients($product['ingredients'], $quantity);
         // $this->total += $product['price'] * $quantity;
@@ -29,8 +31,24 @@ class Order
     public function checkout()
     {
         $this->verifyTotal();
-        // Call to orders repository to save order
-        // Call to ingredient repository to update stock
+        $this->persist();
+        // TODO: Call to ingredient repository to update stock
+    }
+
+    private function persist()
+    {
+        // TODO: Database related code should be separated to a repository to avoid mixing business logic with application Logic
+
+        $attachedProducts = [];
+        foreach ($this->products as $product) {
+            $attachedProducts[$product['id']] = [
+                'quantity' => $product['quantity'],
+                // 'price' => $product['price']
+            ];
+        }
+
+        EloquentOrder::create()
+            ->products()->attach($attachedProducts);
     }
 
     private function verifyTotal()

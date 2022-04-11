@@ -33,7 +33,7 @@ class OrderController extends Controller
         $orderedProducts = collect($request->validated()['products'])
             ->mapWithKeys(fn($product) => [$product['id'] => $product['quantity']]);
         
-        // TODO: read total price from frontend
+        // TODO: read total price from frontend to compare to the total in the backend
         // TODO: separate this query to a repository
         $products = Product::select([
             'id',
@@ -62,8 +62,6 @@ class OrderController extends Controller
             // TODO: queue notification
         }
 
-        // TODO: Persist order
-        // TODO: Update stock
         // TODO: Add all in a transaction
         
         return response()->json(['message' => 'Order created successfully'], 201);
