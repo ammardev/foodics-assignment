@@ -32,7 +32,7 @@ class Order
     {
         $this->verifyTotal();
         $this->persist();
-        // TODO: Call to ingredient repository to update stock
+        $this->stockChecker->updateStock();
     }
 
     private function persist()

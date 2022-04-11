@@ -3,6 +3,7 @@
 namespace Foodics;
 
 use Foodics\Exceptions\AmountInStockIsNotEnough;
+use App\Models\Ingredient as EloquentIngredient;
 
 class StockChecker
 {
@@ -32,6 +33,7 @@ class StockChecker
         if (!isset($this->ingredients[$ingredient['id']])) {
             $this->ingredients[$ingredient['id']] = [
                 'needed_amount' => 0,
+                'current_amount' => $ingredient['current_amount'],
             ];
         }
 
@@ -46,6 +48,15 @@ class StockChecker
 
         if ($remainingAmount < 0) {
             throw new AmountInStockIsNotEnough();
+        }
+    }
+
+    public function updateStock()
+    {
+        foreach ($this->ingredients as $id => $ingredient) {
+            EloquentIngredient::where('id', $id)->update([
+                'current_amount' => $ingredient['current_amount'] - $ingredient['needed_amount']
+            ]);
         }
     }
 }
