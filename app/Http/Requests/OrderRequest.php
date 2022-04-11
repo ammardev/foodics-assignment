@@ -12,6 +12,7 @@ class OrderRequest extends FormRequest
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|integer|exists:products,id',
             'products.*.quantity' => 'required|integer',
+            'total' => 'required|integer|min:1'
         ];
     }
 }

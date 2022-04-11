@@ -33,18 +33,17 @@ class OrderController extends Controller
         $orderedProducts = collect($request->validated()['products'])
             ->mapWithKeys(fn($product) => [$product['id'] => $product['quantity']]);
         
-        // TODO: read total price from frontend to compare to the total in the backend
         // TODO: separate this query to a repository
         $products = Product::select([
             'id',
-            // 'price'
+            'price'
         ])->whereIn('id', $orderedProducts->keys())
         ->with('ingredients')
         ->get()
         ->toArray();
         
         try {
-            $order = new Order(0);
+            $order = new Order($request->validated()['total']);
             foreach($products as $product) {
                 $order->addProductToOrder(
                     $product,
@@ -53,6 +52,7 @@ class OrderController extends Controller
             }
             $order->checkout();
         } catch (IncorrectOrderTotal $e) {
+            dd($e->getMessage());
             return response()->json(['error' => 'Incorrect order price'], 400);
         } catch (AmountInStockIsNotEnough $q) {
             return response()->json(['error' => 'Amount in stock is not enough'], 400);

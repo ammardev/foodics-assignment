@@ -39,7 +39,7 @@ const actions = {
         }
         commit('setLoading', true);
         const products = state.items.map(item => ({id: item.id, quantity: item.quantity}));
-        axios.post('/api/orders', {products}).then(response => {
+        axios.post('/api/orders', {products, total: state.totalPrice}).then(response => {
             dispatch('messages/createMessage', {content: 'Your order has been created', type: 'success'}, {root:true})
             commit('emptyCart');
             commit('setLoading', false);
