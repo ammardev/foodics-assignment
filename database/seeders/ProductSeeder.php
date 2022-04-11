@@ -20,6 +20,7 @@ class ProductSeeder extends Seeder
             'name' => 'Burger',
             'description' => 'Very delicious beef burger with cheese and onion ',
             'image' => 'product1.jpg',
+            'price' => 1000
         ]);
 
         Ingredient::create([
