@@ -55,7 +55,6 @@ class OrderController extends Controller
             }
             $order->checkout();
         } catch (IncorrectOrderTotal $e) {
-            dd($e->getMessage());
             return response()->json(['error' => 'Incorrect order price'], 400);
         } catch (AmountInStockIsNotEnough $q) {
             return response()->json(['error' => 'Amount in stock is not enough'], 400);
