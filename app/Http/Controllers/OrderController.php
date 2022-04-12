@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
 use App\Models\Ingredient;
-use App\Models\IngredientProduct;
 use App\Models\Product;
 use App\Notifications\IngredientsNeedToBeReFilled;
 use Foodics\Exceptions\AmountInStockIsNotEnough;
