@@ -71,6 +71,7 @@ const mutations = {
 
     emptyCart(state) {
         state.items = [];
+        state.totalPrice = 0;
     },
 
     updateTotal(state) {
