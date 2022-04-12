@@ -11,6 +11,7 @@ use Foodics\Exceptions\AmountInStockIsNotEnough;
 use Foodics\Exceptions\IncorrectOrderTotal;
 use Foodics\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class OrderController extends Controller
@@ -33,43 +34,43 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
-        $orderedProducts = collect($request->validated()['products'])
-            ->mapWithKeys(fn($product) => [$product['id'] => $product['quantity']]);
-        
-        // TODO: separate this query to a repository
-        $products = Product::select([
-            'id',
-            'price'
-        ])->whereIn('id', $orderedProducts->keys())
-        ->with('ingredients')
-        ->get()
-        ->toArray();
-        
         try {
-            $order = new Order($request->validated()['total']);
-            foreach($products as $product) {
-                $order->addProductToOrder(
-                    $product,
-                    $orderedProducts[$product['id']]
-                );
-            }
-            $order->checkout();
+            DB::transaction(function() use ($request) {
+                $orderedProducts = collect($request->validated()['products'])
+                    ->mapWithKeys(fn($product) => [$product['id'] => $product['quantity']]);
+                // TODO: separate this query to a repository
+                $products = Product::select([
+                    'id',
+                    'price'
+                ])->whereIn('id', $orderedProducts->keys())
+                ->with('ingredients')
+                ->get()
+                ->toArray();
+            
+                $order = new Order($request->validated()['total']);
+                foreach($products as $product) {
+                    $order->addProductToOrder(
+                        $product,
+                        $orderedProducts[$product['id']]
+                    );
+                }
+
+                $order->checkout();
+
+                foreach ($ingredients = $order->stockChecker->getIngredientsNeedToReFill() as $ingredient) {
+                    Notification::route('mail', 'owner@example.com')
+                        ->notify(new IngredientsNeedToBeReFilled($ingredient));
+                }
+                Ingredient::whereIn('id', array_column($ingredients, 'id'))->update([
+                    'amount_alert_sent' => true
+                ]);
+            });
         } catch (IncorrectOrderTotal $e) {
             return response()->json(['error' => 'Incorrect order price'], 400);
         } catch (AmountInStockIsNotEnough $q) {
             return response()->json(['error' => 'Amount in stock is not enough'], 400);
         }
 
-        foreach ($ingredients = $order->stockChecker->getIngredientsNeedToReFill() as $ingredient) {
-            Notification::route('mail', 'owner@example.com')
-                ->notify(new IngredientsNeedToBeReFilled($ingredient));
-        }
-        Ingredient::whereIn('id', array_column($ingredients, 'id'))->update([
-            'amount_alert_sent' => true
-        ]);
-
-        // TODO: Add all in a transaction
-        
         return response()->json(['message' => 'Order created successfully'], 201);
     }
 
